@@ -17,15 +17,43 @@ bias_conv3 = np.random.randn(16)
 kernel_dense=np.random.randn(144,10)
 bias_dense=np.random.randn(10)
 
-# Hàm conv2d
-def conv2d(X, kernel_conv2d,bias_conv2d):
-    feature_map = np.zeros((26,26))
-    for x in range(26):
-        for y in range(26):
-            filter=X[x:x+3,y:y+3]
-            feature_map[x,y]=np.sum(filter*kernel_conv2d)+bias_conv2d
-    return feature_map
+# Hàm conv2d 
+def conv2d(X, kernel, bias):    
+    height = len(X)
+    width = len(X[0])
+    channel_out = len(bias)
+    output = np.zeros((height, width, channel_out))
 
+    # # padding=valid -> reduce size output
+    # for k in range(channel_out):
+    #     for i in range(height):
+    #         for j in range(width):
+
+    #             region = X[i:i+3, j:j+3, :]
+
+    #             # xử lý padding sau
+    #             filter = kernel[:, :, :, k]     # Chọn kernel thứ k
+    #             output[i,j,k] = np.sum(region * filter) + bias[k]
+
+    # padding=same -> size input=output (đặt tâm của kernel(1,1) vào output(i,j))
+    for k in range(channel_out):
+        for i in range(height):
+            for j in range(width):
+
+                total = 0
+
+                for c in range(channel_in):
+                    for m in range(3):
+                        for n in range(3):
+
+                            x = i + m - 1
+                            y = j + n - 1
+
+                            if x >= 0 and x < height and y >= 0 and y < width:
+                                total += X[x, y, c] * kernel[m, n, c, k]
+
+                output[i, j, k] = total + bias[k]
+    return output
 # print output qua hàm conv2d của ảnh đầu tiên
 # X=X_train[0]
 # print(conv2d(X,kernel_conv2d,bias_conv2d))
